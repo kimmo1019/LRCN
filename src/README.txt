@@ -1,3 +1,4 @@
+
 模型的训练：
 	train.sh: LRCN caffe模型的训练shell脚本,可以选择使用GPU来加速训练。
 	lstm_lm_solver.prototxt: LRCN模型的参数，包括迭代次数，学习率等。
