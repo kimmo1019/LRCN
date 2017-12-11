@@ -1,0 +1,129 @@
+#
+# prototxt for training Chinese image caption
+# input:
+#	-image feature in .h5 file
+#	-sentence in .h5 file 
+# Parameter:
+#	-vocabulary size, current value: 5736. So the network output is 5736 + 1 = 5737.(Used in 2 layers)
+#	because the index 0 strands for sentence start/end
+
+layer {
+  name: "imgdata"
+  type: "HDF5Data"
+  top: "feature"
+  hdf5_data_param {
+    source: "./data/zh_caption/train_img_h5.txt"
+    batch_size: 100
+  }
+}
+layer {
+  name: "data"
+  type: "HDF5Data"
+  top: "cont_sentence"
+  top: "input_sentence"
+  top: "target_sentence"
+  hdf5_data_param {
+    source: "./data/zh_caption/train_sentence_h5.txt"
+    batch_size: 20
+  }
+}
+
+layer {
+  name: "embedding"
+  type: "Embed"
+  bottom: "input_sentence"
+  top: "embedded_input_sentence"
+  param {
+    lr_mult: 1
+  }
+  embed_param {
+    num_output: 1000
+    #input_dim: 5737
+    input_dim:2217
+    bias_term: false
+    weight_filler {
+      type: "xavier"
+    }
+  }
+}
+layer {
+  name: "lstm1"
+  type: "LSTM"
+  bottom: "embedded_input_sentence"
+  bottom: "cont_sentence"
+  top: "lstm1"
+  recurrent_param {
+    num_output: 1000
+    weight_filler {
+      type: "uniform"
+      min: -0.01
+      max: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "lstm2"
+  type: "LSTM"
+  bottom: "lstm1"
+  bottom: "cont_sentence"
+  bottom: "feature"
+  top: "lstm2"
+  recurrent_param {
+    num_output: 1000
+    weight_filler {
+      type: "uniform"
+      min: -0.01
+      max: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "predict"
+  type: "InnerProduct"
+  bottom: "lstm2"
+  top: "predict"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    #num_output: 5737
+    num_output:2217
+    weight_filler {
+      type: "uniform"
+      min: -0.01
+      max: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+    axis: 2
+  }
+}
+layer {
+  name: "cross_entropy_loss"
+  type: "SoftmaxWithLoss"
+  bottom: "predict"
+  bottom: "target_sentence"
+  top: "cross_entropy_loss"
+#  loss_weight: 20
+  loss_param {
+    ignore_label: -1
+  }
+  softmax_param {
+    axis: 2
+  }
+}

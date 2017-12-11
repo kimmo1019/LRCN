@@ -1,0 +1,116 @@
+# input:
+# Parameter:
+#	-vocabulary size, current value: 5736. (Used in 2 layers)
+
+name: "lstm_image_caption"
+
+input: "feature"
+input_shape {
+dim: 1
+dim: 1000
+}
+
+input: "input_sentence"
+input_shape {
+dim: 1
+dim: 1
+}
+
+input: "cont_sentence"
+input_shape {
+dim: 1
+dim: 1
+}
+
+layer {
+  name: "embedding"
+  type: "Embed"
+  bottom: "input_sentence"
+  top: "embedded_input_sentence"
+  param {
+    lr_mult: 1
+  }
+  embed_param {
+    num_output: 1000
+    input_dim: 5737
+    bias_term: false
+    weight_filler {
+      type: "uniform"
+      min: -0.08
+      max: 0.08
+    }
+  }
+}
+layer {
+  name: "lstm1"
+  type: "LSTM"
+  bottom: "embedded_input_sentence"
+  bottom: "cont_sentence"
+  top: "lstm1"
+  recurrent_param {
+    num_output: 1000
+    weight_filler {
+      type: "uniform"
+      min: -0.08
+      max: 0.08
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "lstm2"
+  type: "LSTM"
+  bottom: "lstm1"
+  bottom: "cont_sentence"
+  bottom: "feature"
+  top: "lstm2"
+  recurrent_param {
+    num_output: 1000
+    weight_filler {
+      type: "uniform"
+      min: -0.08
+      max: 0.08
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "predict"
+  type: "InnerProduct"
+  bottom: "lstm2"
+  top: "predict"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 5737
+    weight_filler {
+      type: "uniform"
+      min: -0.08
+      max: 0.08
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+    axis: 2
+  }
+}
+layer {
+  name: "probs"
+  type: "Softmax"
+  bottom: "predict"
+  top: "probs"
+  softmax_param { axis: 2 }
+}

@@ -1,0 +1,19 @@
+#
+net: "./examples/zh_caption/train.prototxt"
+#test_iter: 10
+#test_interval: 1000
+base_lr: 0.2
+lr_policy: "step"
+gamma: 0.5
+stepsize: 1000
+display: 50
+max_iter: 20000
+momentum: 0.9
+weight_decay: 0.0001
+snapshot: 500
+#snapshot_prefix: "./models/zh_caption/lstm_lm"
+snapshot_prefix: "./models/zh_caption/lstm_lm2"
+solver_mode: GPU
+#random_seed: 1701
+average_loss: 100
+clip_gradients: 10
