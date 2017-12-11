@@ -1,7 +1,7 @@
 # LRCN
 **Chinese** Image Captioning based on Long-term Recurrent Convolutional Networks  
 
-![model](https://github.com/kimmo1019/LRCN/example/LRCN_model.png)
+![model](https://github.com/kimmo1019/LRCN/blob/master/example/LRCN_model.png)
 
 
 
